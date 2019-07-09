@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Property;
 use App\Repository\PropertyRepository;
 use Doctrine\Common\Persistence\ObjectManager;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -30,39 +32,20 @@ class PropertyController extends AbstractController
 
     /**
      * @Route("/biens", name="property.index")
+     * @param PaginatorInterface $paginator
      * @return Response
      */
-    public function index():Response
+    public function index(PaginatorInterface $paginator, Request $request):Response
     {
 
-    /* INSERT NEW PROPERTY
-          $property = new Property();
-        $property->setTitle('Mon premier bien')
-            ->setPrice(20000)
-            ->setRooms(4)
-            ->setBedrooms(3)
-            ->setDescription('Un petite description')
-            ->setSurface(60)
-            ->setFloor(4)
-            ->setHeat(1)
-            ->setCity('Montpellier')
-            ->setAddress('15 Boulevard Gambetta')
-        ->setPostalCode('34000');
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($property);
-        $em->flush();*/
-
-    /*        $repository = $this->getDoctrine()->getRepository(Property::class);
-        dump($repository);*/
-
-
-//        $property = $this->repository->findAllVisible();
-//        dump($property);
-//        $property[0]->setSold(true);
-//        $this->em->flush();
-
+        $properties = $paginator->paginate(
+            $this->repository->findAllVisibleQuery(),
+            $request->query->getInt('page',1),
+            12
+        );
         return $this->render('property/index.html.twig', [
-            'current_menu' => 'properties'
+            'current_menu' => 'properties',
+            'properties' => $properties
         ]);
     }
 
